@@ -32,7 +32,14 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
 
   const openModal = (table: Table) => {
     setSelectedTable(table);
-    setForm({ price: table.price.toString(), time: table.time || "" });
+    let timeValue = table.time || "";
+    if (!table.time) {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, "0");
+      timeValue = `${hours}h:${minutes}p`;
+    }
+    setForm({ price: table.price.toString(), time: timeValue });
     setModalOpen(true);
   };
 
@@ -112,6 +119,12 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
               onChange={(e) => setForm({ ...form, time: e.target.value })}
             />
             <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setForm({ price: "", time: "" })}
+                className="px-4 py-2 border rounded hover:bg-gray-100"
+              >
+                Xóa
+              </button>
               <button
                 onClick={() => setModalOpen(false)}
                 className="px-4 py-2 border rounded hover:bg-gray-100"

@@ -161,7 +161,7 @@ export default function ProductsPage() {
       {/* Modal */}
       {modalOpen && (
         <div className="flex items-center justify-center w-ful">
-          <div className="bg-[var(--foreground] p-6 rounded text-black">
+          <div className="bg-[var(--foreground)] p-6 rounded text-black">
             <h2 className="text-xl font-bold mb-3">
               {editing ? "Edit Product" : "Add Product"}
             </h2>
@@ -210,7 +210,7 @@ export default function ProductsPage() {
       {/* Delete Confirmation Modal */}
       {deleteModalOpen && deletingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-[var(--foreground] p-6 rounded text-black max-w-md w-full mx-4">
+          <div className="bg-[var(--foreground)] p-6 rounded text-black max-w-md w-full mx-4">
             <h2 className="text-xl font-bold mb-3">Xác nhận xóa</h2>
             <p className="mb-4">
               Bạn có chắc chắn muốn xóa sản phẩm{" "}
