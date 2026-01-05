@@ -20,10 +20,14 @@ interface OrderTablesProps {
 
 const OrderTables = ({ activeTab }: OrderTablesProps) => {
   const [tables, setTables] = useState<Table[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
-  const [form, setForm] = useState({ price: "", time: "" });
+  const [form, setForm] = useState({
+    time: "",
+    products: [] as Array<{ productId: string; quantity: number }>,
+  });
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newForm, setNewForm] = useState({ name: "" });
@@ -46,8 +50,24 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
     }
   };
 
+  // Load products
+  const loadProducts = async () => {
+    try {
+      const res = await fetch("/api/products");
+      if (!res.ok) {
+        console.error("Failed to fetch products:", res.status, res.statusText);
+        return;
+      }
+      const data = await res.json();
+      setProducts(data);
+    } catch (error) {
+      console.error("Error loading products:", error);
+    }
+  };
+
   useEffect(() => {
     loadTables();
+    loadProducts();
   }, []);
 
   const openModal = (table: Table) => {
@@ -59,18 +79,26 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
       const minutes = now.getMinutes().toString().padStart(2, "0");
       timeValue = `${hours}h:${minutes}p`;
     }
-    setForm({ price: table.price.toString(), time: timeValue });
+    setForm({
+      time: timeValue,
+      products: table.product || [],
+    });
     setModalOpen(true);
   };
 
   const saveTable = async () => {
     if (selectedTable) {
+      const totalPrice = form.products.reduce((sum, p) => {
+        const product = products.find((prod) => prod._id === p.productId);
+        return sum + (product ? product.price * p.quantity : 0);
+      }, 0);
       try {
         await fetch("/api/tables/" + selectedTable._id, {
           method: "PUT",
           body: JSON.stringify({
-            price: parseInt(form.price) || 0,
+            price: totalPrice,
             time: form.time || null,
+            product: form.products,
           }),
         });
         loadTables();
@@ -131,7 +159,7 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
 
       <button
         onClick={() => setAddModalOpen(true)}
-        className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+        className="bg-blue-600 text-white px-4 py-2 rounded mb-4 ml-2 hover:bg-blue-700 cursor-pointer"
       >
         Add Table
       </button>
@@ -139,7 +167,11 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
       {/* GRID BÀN */}
       <div className="grid grid-cols-4 gap-4 p-4">
         {tables.map((t) => {
-          const isUsed = t.price > 0;
+          const totalPrice = (t.product || []).reduce((sum, p) => {
+            const product = products.find((prod) => prod._id === p.productId);
+            return sum + (product ? product.price * p.quantity : 0);
+          }, 0);
+          const isUsed = totalPrice > 0;
 
           return (
             <div
@@ -157,7 +189,7 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
               <div className="text-lg font-semibold">{t.name}</div>
               {isUsed && (
                 <div className="mt-2 text-sm font-semibold">
-                  {t?.price?.toLocaleString("vi-VN")} đ
+                  {totalPrice.toLocaleString("vi-VN")} đ
                 </div>
               )}
               <button
