@@ -7,7 +7,7 @@ This is a Next.js 16 cafe management system with MongoDB backend. Key components
 - **Dashboard** (`app/page.tsx`): Table status display with Vietnamese tabs (TẠI QUÁN - dine-in, MANG VỀ - takeaway, Hóa đơn - bills) and grid of tables showing occupancy (price > 0), time, and pricing in VND
 - **Products** (`app/products/page.tsx`): CRUD interface for menu items with image uploads to Cloudinary, modal forms, and Vietnamese delete confirmation dialogs
 - **API Routes** (`app/api/`): RESTful endpoints using Mongoose models for products (GET, POST, PUT, DELETE with Cloudinary image cleanup on delete) and tables
-- **Models** (`models/`): Product schema (name, price, image, public_id, category) and Order schema (tableId, items array, total, status) with timestamps; Order model defined but not yet integrated into UI; Table schema (name, time, price, product array with productId and quantity)
+- **Models** (`models/`): Product schema (name, price, image, public_id, category) and Order schema (tableId, items array, total, status, time, type) with timestamps; Order model defined but not yet integrated into UI; Table schema (name, time, price, product array with productId and quantity)
 
 ## Tech Stack Patterns
 
@@ -36,7 +36,7 @@ This is a Next.js 16 cafe management system with MongoDB backend. Key components
 
 ## Common Patterns
 
-- **Product CRUD**: Follow `app/products/page.tsx` structure with modal forms for add/edit, image upload via file input and FormData, loading spinner during uploads/deletes, confirmation dialogs for delete with Vietnamese text; upload preset "cafe_manager" to Cloudinary
+- **Product CRUD**: Follow `app/products/page.tsx` structure with modal forms for add/edit, image upload via file input and FormData, loading spinner during uploads/deletes, confirmation dialogs for delete with Vietnamese text; upload preset "cafe_manager" to Cloudinary; modals extracted into separate components (AddEditProductModal, DeleteProductModal, SelectMediaModal) for better organization; products displayed in two columns filtered by category (food and drink)
 - **Table Display**: Grid layout in `components/order.tables.tsx` with conditional styling (`bg-blue-500` for occupied tables where total price > 0); display time and formatted total price calculated from selected products and quantities; separate modal components for editing, adding, and deleting tables
 - **Image Management**: Upload to Cloudinary with preset "cafe_manager", store URL and public_id in form state and DB; delete image from Cloudinary in DELETE API route before DB removal using `cloudinary.uploader.destroy(public_id)`
 - **Navigation**: Sidebar in `layout.tsx` with Material-UI Drawer (permanent variant), Link navigation, selected state styling with custom colors; Vietnamese menu items ("Đơn hàng", "Sản phẩm", "Hình ảnh")
@@ -46,14 +46,13 @@ This is a Next.js 16 cafe management system with MongoDB backend. Key components
 
 - `lib/mongodb.ts`: Database connection with global caching to prevent reconnections
 - `models/Product.ts`: Schema with image fields (name, price, image, public_id); includes category field not yet used in UI
-- `models/Order.ts`: Schema for orders (tableId, items array, total, status); defined but not integrated
+- `models/Order.ts`: Schema for orders (tableId, items array, total, status, time, type); defined but not integrated
 - `models/Table.ts`: Schema with product array for orders
 - `app/api/products/[id]/route.ts`: Full CRUD with Cloudinary image deletion on DELETE
 - `app/products/page.tsx`: Complete CRUD UI with modals, image upload, and delete confirmation
-- `components/order.tables.tsx`: Table grid with separate modal components for editing, adding, and deleting tables
-- `components/EditTableModal.tsx`: Modal for editing table price and time, with product selection grid that shows images, prices, and quantity inputs; selected items highlight in blue and auto-calculate total price
-- `components/AddTableModal.tsx`: Modal for adding new tables
-- `components/DeleteTableModal.tsx`: Modal for confirming table deletion
+- `components/AddEditProductModal.tsx`: Modal for adding/editing products with category selection, media picker, and form validation
+- `components/DeleteProductModal.tsx`: Confirmation modal for product deletion with Vietnamese text
+- `components/SelectMediaModal.tsx`: Modal to select images from media library for product images
 - `app/api/tables/route.ts`: GET and POST for tables with error handling
 - `app/api/tables/[id]/route.ts`: PUT and DELETE for individual tables with error handling
 - `app/globals.css`: Tailwind v4 setup with custom theme variables and dark mode support</content>

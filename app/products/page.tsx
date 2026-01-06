@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
+import AddEditProductModal from "@/components/product/AddEditProductModal";
+import DeleteProductModal from "@/components/product/DeleteProductModal";
+import SelectMediaModal from "@/components/product/SelectMediaModal";
 
 interface Product {
   _id: string;
@@ -7,19 +10,30 @@ interface Product {
   price: string | number;
   image: string;
   public_id: String;
+  category: string;
+}
+
+interface Media {
+  _id: string;
+  name: string;
+  url: string;
+  public_id: string;
 }
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [medias, setMedias] = useState<Media[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [mediaModalOpen, setMediaModalOpen] = useState(false);
   const [form, setForm] = useState({
     name: "",
     price: "",
     image: "",
     public_id: "",
+    category: "",
   });
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,9 +44,20 @@ export default function ProductsPage() {
     setProducts(await res.json());
   };
 
+  // Load medias
+  const loadMedias = async () => {
+    const res = await fetch("/api/media");
+    setMedias(await res.json());
+  };
+
   useEffect(() => {
     loadProducts();
+    loadMedias();
   }, []);
+
+  useEffect(() => {
+    setImage(form.image);
+  }, [form.image]);
 
   // Submit
   const submit = async () => {
@@ -50,7 +75,7 @@ export default function ProductsPage() {
     }
 
     setModalOpen(false);
-    setForm({ name: "", price: "", image: "", public_id: "" });
+    setForm({ name: "", price: "", image: "", public_id: "", category: "" });
     setEditing(null);
     loadProducts();
   };
@@ -101,6 +126,12 @@ export default function ProductsPage() {
     setLoading(false);
   };
 
+  const selectMedia = (media: Media) => {
+    setForm({ ...form, image: media.url, public_id: media.public_id });
+    setImage(media.url);
+    setMediaModalOpen(false);
+  };
+
   return (
     <div className="p-6">
       {loading && (
@@ -111,7 +142,13 @@ export default function ProductsPage() {
       <button
         onClick={() => {
           setEditing(null);
-          setForm({ name: "", price: "", image: "", public_id: "" });
+          setForm({
+            name: "",
+            price: "",
+            image: "",
+            public_id: "",
+            category: "",
+          });
           setModalOpen(true);
         }}
         className="bg-blue-600 text-white px-4 py-2 rounded"
@@ -120,125 +157,127 @@ export default function ProductsPage() {
       </button>
 
       {/* Danh sách sản phẩm */}
-      <div className="mt-4 space-y-2">
-        {products.map((p) => (
-          <div key={p._id} className="p-3 border rounded flex justify-between">
-            <div>
-              <p className="font-medium">{p.name}</p>
-              <p>{p.price.toLocaleString("vi-VN")}đ</p>
-            </div>
-            <img
-              src={p.image}
-              className="w-16 h-16 object-cover rounded border"
-            />
-            <div className="space-x-3">
-              <button
-                onClick={() => {
-                  setEditing(p);
-                  setForm({
-                    name: p.name,
-                    price: String(p.price),
-                    image: "",
-                    public_id: "",
-                  });
-                  setModalOpen(true);
-                }}
-                className="text-yellow-600"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => openDeleteModal(p)}
-                className="text-red-600"
-              >
-                Delete
-              </button>
-            </div>
+      <div className="mt-4 grid grid-cols-2 gap-4">
+        <div>
+          <h3 className="font-bold mb-2">Món ăn</h3>
+          <div className="space-y-2">
+            {products
+              .filter((p) => p.category === "food")
+              .map((p) => (
+                <div
+                  key={p._id}
+                  className="p-3 border rounded flex justify-between"
+                >
+                  <div>
+                    <p className="font-medium">{p.name}</p>
+                    <p>{p.price.toLocaleString("vi-VN")}đ</p>
+                  </div>
+                  <img
+                    src={p.image}
+                    className="w-16 h-16 object-cover rounded border"
+                  />
+                  <div className="space-x-3">
+                    <button
+                      onClick={() => {
+                        setEditing(p);
+                        setForm({
+                          name: p.name,
+                          price: String(p.price),
+                          image: p.image,
+                          public_id: p._id || "",
+                          category: p.category || "",
+                        });
+                        setModalOpen(true);
+                      }}
+                      className="text-yellow-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(p)}
+                      className="text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
           </div>
-        ))}
+        </div>
+        <div>
+          <h3 className="font-bold mb-2">Thức uống</h3>
+          <div className="space-y-2">
+            {products
+              .filter((p) => p.category === "drink")
+              .map((p) => (
+                <div
+                  key={p._id}
+                  className="p-3 border rounded flex justify-between"
+                >
+                  <div>
+                    <p className="font-medium">{p.name}</p>
+                    <p>{p.price.toLocaleString("vi-VN")}đ</p>
+                  </div>
+                  <img
+                    src={p.image}
+                    className="w-16 h-16 object-cover rounded border"
+                  />
+                  <div className="space-x-3">
+                    <button
+                      onClick={() => {
+                        setEditing(p);
+                        setForm({
+                          name: p.name,
+                          price: String(p.price),
+                          image: p.image,
+                          public_id: p._id || "",
+                          category: p.category || "",
+                        });
+                        setModalOpen(true);
+                      }}
+                      className="text-yellow-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(p)}
+                      className="text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
       </div>
 
-      {/* Modal */}
-      {modalOpen && (
-        <div className="flex items-center justify-center w-ful">
-          <div className="bg-[var(--foreground)] p-6 rounded text-black">
-            <h2 className="text-xl font-bold mb-3">
-              {editing ? "Edit Product" : "Add Product"}
-            </h2>
+      <AddEditProductModal
+        modalOpen={modalOpen}
+        editing={editing}
+        form={form}
+        setForm={setForm}
+        submit={submit}
+        setModalOpen={setModalOpen}
+        setMediaModalOpen={setMediaModalOpen}
+        image={image}
+        loading={loading}
+      />
 
-            <input
-              className="w-full border p-2 mb-3"
-              placeholder="Name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
-            <input
-              className="w-full border p-2 mb-3"
-              placeholder="Price"
-              value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value })}
-            />
-            <input
-              type="file"
-              onChange={uploadImage}
-              className="w-full border p-2 mb-3"
-            />
+      <DeleteProductModal
+        deleteModalOpen={deleteModalOpen}
+        deletingProduct={deletingProduct}
+        confirmDelete={confirmDelete}
+        setDeleteModalOpen={setDeleteModalOpen}
+        setDeletingProduct={setDeletingProduct}
+      />
 
-            {loading && <p>Đang upload ảnh...</p>}
-
-            {image && (
-              <img
-                src={image}
-                alt="preview"
-                className="w-32 h-32 object-cover rounded mb-3 border"
-              />
-            )}
-
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setModalOpen(false)}>Cancel</button>
-              <button
-                onClick={submit}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                {editing ? "Update" : "Create"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {deleteModalOpen && deletingProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-[var(--foreground)] p-6 rounded text-black max-w-md w-full mx-4">
-            <h2 className="text-xl font-bold mb-3">Xác nhận xóa</h2>
-            <p className="mb-4">
-              Bạn có chắc chắn muốn xóa sản phẩm{" "}
-              <strong>"{deletingProduct.name}"</strong>?
-            </p>
-            <p className="text-sm text-gray-600 mb-6">
-              Hành động này không thể hoàn tác.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setDeleteModalOpen(false);
-                  setDeletingProduct(null);
-                }}
-                className="px-4 py-2 border rounded hover:bg-gray-100"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-              >
-                Xóa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <SelectMediaModal
+        mediaModalOpen={mediaModalOpen}
+        medias={medias}
+        selectMedia={selectMedia}
+        setMediaModalOpen={setMediaModalOpen}
+      />
     </div>
   );
 }

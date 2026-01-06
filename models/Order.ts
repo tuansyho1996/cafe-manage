@@ -6,6 +6,8 @@ const OrderSchema = new Schema(
     items: Array,
     total: Number,
     status: { type: String, default: "pending" },
+    time: String,
+    type: String, // "dine-in" or "takeaway"
   },
   { timestamps: true }
 );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import OrderTables from "@/components/order.tables";
+import OrderTables from "@/components/order.table/order.tables";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("TAI_QUAN");
