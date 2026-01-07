@@ -4,7 +4,7 @@
 
 This is a Next.js 16 cafe management system with MongoDB backend. Key components:
 
-- **Dashboard** (`app/page.tsx`): Table status display with Vietnamese tabs (TẠI QUÁN - dine-in, MANG VỀ - takeaway, Hóa đơn - bills) and grid of tables showing occupancy (price > 0), time, and pricing in VND
+- **Dashboard** (`app/page.tsx`): Table status display with Vietnamese tabs (TẠI QUÁN - dine-in, MANG VỀ - takeaway, Hóa đơn - bills) and grid of tables showing occupancy (price > 0), time, and pricing in VND; TakeawayOrder component for creating takeaway orders without tables
 - **Products** (`app/products/page.tsx`): CRUD interface for menu items with image uploads to Cloudinary, modal forms, and Vietnamese delete confirmation dialogs
 - **API Routes** (`app/api/`): RESTful endpoints using Mongoose models for products (GET, POST, PUT, DELETE with Cloudinary image cleanup on delete) and tables; orders (GET, POST) for payment processing
 - **Models** (`models/`): Product schema (name, price, image, public_id, category) and Order schema (tableId, items array, total, status, time, type) with timestamps; Order model defined but not yet integrated into UI; Table schema (name, time, price, product array with productId and quantity)
@@ -37,7 +37,8 @@ This is a Next.js 16 cafe management system with MongoDB backend. Key components
 ## Common Patterns
 
 - **Product CRUD**: Follow `app/products/page.tsx` structure with modal forms for add/edit, image upload via file input and FormData, loading spinner during uploads/deletes, confirmation dialogs for delete with Vietnamese text; upload preset "cafe_manager" to Cloudinary; modals extracted into separate components (AddEditProductModal, DeleteProductModal, SelectMediaModal) for better organization; products displayed in two columns filtered by category (food and drink)
-- **Table Display**: Grid layout in `components/order.tables.tsx` with conditional styling (`bg-blue-500` for occupied tables where total price > 0); display time and formatted total price calculated from selected products and quantities; separate modal components for editing, adding, and deleting tables; payment button in edit modal creates Order and resets table
+- **Table Display**: Grid layout in `components/order.tables.tsx` with conditional styling (`bg-blue-500` for occupied tables where total price > 0); display time and formatted total price calculated from selected products and quantities; separate modal components for editing, adding, and deleting tables; payment button in edit modal creates Order and resets table; includes DineInOrderList for listing dine-in orders
+- **Takeaway Orders**: `components/TakeawayOrder.tsx` for creating orders without tables; load products, select items with quantity via modal, calculate total, POST to `/api/orders` with type "takeaway", status "paid", and no tableId; reset after creation
 - **Image Management**: Upload to Cloudinary with preset "cafe_manager", store URL and public_id in form state and DB; delete image from Cloudinary in DELETE API route before DB removal using `cloudinary.uploader.destroy(public_id)`
 - **Navigation**: Sidebar in `layout.tsx` with Material-UI Drawer (permanent variant), Link navigation, selected state styling with custom colors; Vietnamese menu items ("Đơn hàng", "Sản phẩm", "Hình ảnh")
 - **Cloudinary Config**: Configure in API routes using `cloudinary.config()` with env vars; use `v2 as cloudinary` import
@@ -55,5 +56,6 @@ This is a Next.js 16 cafe management system with MongoDB backend. Key components
 - `components/SelectMediaModal.tsx`: Modal to select images from media library for product images
 - `app/api/tables/route.ts`: GET and POST for tables with error handling
 - `app/api/tables/[id]/route.ts`: PUT and DELETE for individual tables with error handling
-- `app/globals.css`: Tailwind v4 setup with custom theme variables and dark mode support</content>
+- `components/TakeawayOrder.tsx`: Component for creating takeaway orders by selecting products and quantities, calculating total, and saving to Order model without tableId
+- `components/DineInOrderList.tsx`: Component to list dine-in orders with filtering and table display, refreshes when new order is created</content>
   <parameter name="filePath">/home/tuansyho/Desktop/code cafe-manager /cafe-manager/.github/copilot-instructions.md

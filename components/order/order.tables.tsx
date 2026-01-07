@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import EditTableModal from "./EditTableModal";
 import AddTableModal from "./AddTableModal";
 import DeleteTableModal from "./DeleteTableModal";
+import DineInOrderList from "./DineInOrderList";
 
 interface Table {
   _id: string;
@@ -34,6 +35,8 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingTable, setDeletingTable] = useState<Table | null>(null);
+
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
 
   // Load tables
   const loadTables = async () => {
@@ -141,6 +144,7 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
           }),
         });
         loadTables();
+        setRefreshTrigger(!refreshTrigger);
       } catch (error) {
         console.error("Error thanh toán:", error);
       }
@@ -244,6 +248,8 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
           );
         })}
       </div>
+
+      <DineInOrderList refreshTrigger={refreshTrigger} />
 
       <EditTableModal
         modalOpen={modalOpen}

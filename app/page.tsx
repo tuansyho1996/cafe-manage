@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import OrderTables from "@/components/order.table/order.tables";
+import OrderTables from "@/components/order/order.tables";
+import TakeawayOrder from "@/components/order/TakeawayOrder";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("TAI_QUAN");
@@ -40,6 +41,7 @@ export default function Dashboard() {
       {activeTab === "MANG_VE" && (
         <div className="p-4">
           <h2 className="text-xl font-semibold">MANG VỀ</h2>
+          <TakeawayOrder />
         </div>
       )}
     </div>
