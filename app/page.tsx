@@ -8,7 +8,6 @@ export default function Dashboard() {
   const tabs = [
     { id: "TAI_QUAN", label: "TẠI QUÁN" },
     { id: "MANG_VE", label: "MANG VỀ" },
-    { id: "HOA_DON", label: "Hóa đơn" },
   ];
 
   return (
@@ -30,9 +29,19 @@ export default function Dashboard() {
         ))}
       </div>
       {/* NỘI DUNG */}
-      <div className="flex-1 overflow-y-auto bg-[var(--background)]">
-        <OrderTables activeTab={activeTab} />
-      </div>
+      {activeTab === "TAI_QUAN" && (
+        <div className="p-4">
+          <h2 className="text-xl font-semibold">TẠI QUÁN</h2>
+          <div className="flex-1 overflow-y-auto bg-[var(--background)]">
+            <OrderTables activeTab={activeTab} />
+          </div>
+        </div>
+      )}
+      {activeTab === "MANG_VE" && (
+        <div className="p-4">
+          <h2 className="text-xl font-semibold">MANG VỀ</h2>
+        </div>
+      )}
     </div>
   );
 }

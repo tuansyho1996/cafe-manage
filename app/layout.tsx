@@ -28,13 +28,13 @@ export default function RootLayout({
 }>) {
   const drawerWidth = 240;
   const listAppBar = [
-    { text: "Đơn hàng", link: "/" },
+    { text: "Quản lý", link: "/" },
     { text: "Sản phẩm", link: "/products" },
     { text: "Hình ảnh", link: "/media" },
+    { text: "Đơn hàng", link: "/order" },
   ];
   const pathname = usePathname();
 
-  console.log("PATHNAME", pathname);
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
