@@ -110,6 +110,45 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
     setSelectedTable(null);
   };
 
+  const thanhToan = async () => {
+    if (selectedTable && form.products.length > 0) {
+      const totalPrice = form.products.reduce((sum, p) => {
+        const product = products.find((prod) => prod._id === p.productId);
+        return sum + (product ? product.price * p.quantity : 0);
+      }, 0);
+      const type = activeTab === "TAI_QUAN" ? "dine-in" : "takeaway";
+      try {
+        // Tạo Order
+        const orderResponse = await fetch("/api/orders", {
+          method: "POST",
+          body: JSON.stringify({
+            tableId: selectedTable._id,
+            items: form.products,
+            total: totalPrice,
+            status: "paid",
+            time: form.time,
+            type: type,
+          }),
+        });
+        console.log("Order created:", await orderResponse.json());
+        // Reset table
+        await fetch("/api/tables/" + selectedTable._id, {
+          method: "PUT",
+          body: JSON.stringify({
+            price: 0,
+            time: null,
+            product: [],
+          }),
+        });
+        loadTables();
+      } catch (error) {
+        console.error("Error thanh toán:", error);
+      }
+    }
+    setModalOpen(false);
+    setSelectedTable(null);
+  };
+
   const addTable = async () => {
     try {
       await fetch("/api/tables", {
@@ -213,6 +252,8 @@ const OrderTables = ({ activeTab }: OrderTablesProps) => {
         setForm={setForm}
         saveTable={saveTable}
         setModalOpen={setModalOpen}
+        activeTab={activeTab}
+        thanhToan={thanhToan}
       />
 
       <AddTableModal

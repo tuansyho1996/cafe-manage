@@ -6,7 +6,7 @@ This is a Next.js 16 cafe management system with MongoDB backend. Key components
 
 - **Dashboard** (`app/page.tsx`): Table status display with Vietnamese tabs (TẠI QUÁN - dine-in, MANG VỀ - takeaway, Hóa đơn - bills) and grid of tables showing occupancy (price > 0), time, and pricing in VND
 - **Products** (`app/products/page.tsx`): CRUD interface for menu items with image uploads to Cloudinary, modal forms, and Vietnamese delete confirmation dialogs
-- **API Routes** (`app/api/`): RESTful endpoints using Mongoose models for products (GET, POST, PUT, DELETE with Cloudinary image cleanup on delete) and tables
+- **API Routes** (`app/api/`): RESTful endpoints using Mongoose models for products (GET, POST, PUT, DELETE with Cloudinary image cleanup on delete) and tables; orders (GET, POST) for payment processing
 - **Models** (`models/`): Product schema (name, price, image, public_id, category) and Order schema (tableId, items array, total, status, time, type) with timestamps; Order model defined but not yet integrated into UI; Table schema (name, time, price, product array with productId and quantity)
 
 ## Tech Stack Patterns
@@ -37,7 +37,7 @@ This is a Next.js 16 cafe management system with MongoDB backend. Key components
 ## Common Patterns
 
 - **Product CRUD**: Follow `app/products/page.tsx` structure with modal forms for add/edit, image upload via file input and FormData, loading spinner during uploads/deletes, confirmation dialogs for delete with Vietnamese text; upload preset "cafe_manager" to Cloudinary; modals extracted into separate components (AddEditProductModal, DeleteProductModal, SelectMediaModal) for better organization; products displayed in two columns filtered by category (food and drink)
-- **Table Display**: Grid layout in `components/order.tables.tsx` with conditional styling (`bg-blue-500` for occupied tables where total price > 0); display time and formatted total price calculated from selected products and quantities; separate modal components for editing, adding, and deleting tables
+- **Table Display**: Grid layout in `components/order.tables.tsx` with conditional styling (`bg-blue-500` for occupied tables where total price > 0); display time and formatted total price calculated from selected products and quantities; separate modal components for editing, adding, and deleting tables; payment button in edit modal creates Order and resets table
 - **Image Management**: Upload to Cloudinary with preset "cafe_manager", store URL and public_id in form state and DB; delete image from Cloudinary in DELETE API route before DB removal using `cloudinary.uploader.destroy(public_id)`
 - **Navigation**: Sidebar in `layout.tsx` with Material-UI Drawer (permanent variant), Link navigation, selected state styling with custom colors; Vietnamese menu items ("Đơn hàng", "Sản phẩm", "Hình ảnh")
 - **Cloudinary Config**: Configure in API routes using `cloudinary.config()` with env vars; use `v2 as cloudinary` import
@@ -46,7 +46,7 @@ This is a Next.js 16 cafe management system with MongoDB backend. Key components
 
 - `lib/mongodb.ts`: Database connection with global caching to prevent reconnections
 - `models/Product.ts`: Schema with image fields (name, price, image, public_id); includes category field not yet used in UI
-- `models/Order.ts`: Schema for orders (tableId, items array, total, status, time, type); defined but not integrated
+- `models/Order.ts`: Schema for orders (tableId, items array, total, status, time, type); integrated into table payment flow
 - `models/Table.ts`: Schema with product array for orders
 - `app/api/products/[id]/route.ts`: Full CRUD with Cloudinary image deletion on DELETE
 - `app/products/page.tsx`: Complete CRUD UI with modals, image upload, and delete confirmation

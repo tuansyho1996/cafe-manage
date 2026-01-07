@@ -31,6 +31,8 @@ interface EditTableModalProps {
   }) => void;
   saveTable: () => void;
   setModalOpen: (open: boolean) => void;
+  activeTab: string;
+  thanhToan: () => void;
 }
 
 const EditTableModal = ({
@@ -40,6 +42,8 @@ const EditTableModal = ({
   setForm,
   saveTable,
   setModalOpen,
+  activeTab,
+  thanhToan,
 }: EditTableModalProps) => {
   const [products, setProducts] = useState<Product[]>([]);
 
@@ -178,6 +182,12 @@ const EditTableModal = ({
             className="px-4 py-2 border rounded hover:bg-gray-100"
           >
             Hủy
+          </button>
+          <button
+            onClick={thanhToan}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Thanh toán
           </button>
           <button
             onClick={saveTable}
