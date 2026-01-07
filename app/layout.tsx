@@ -7,9 +7,12 @@ import {
   ListItem,
   ListItemText,
   ListItemButton,
+  IconButton,
+  useMediaQuery,
 } from "@mui/material";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,12 +29,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const drawerWidth = 240;
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const isMobile = useMediaQuery("(max-width:768px)");
+  const drawerWidth = isCollapsed ? 60 : 240;
   const listAppBar = [
-    { text: "Quản lý", link: "/" },
-    { text: "Sản phẩm", link: "/products" },
-    { text: "Hình ảnh", link: "/media" },
-    { text: "Đơn hàng", link: "/order" },
+    { text: "Quản lý", link: "/", icon: "🏠" },
+    { text: "Sản phẩm", link: "/products", icon: "📦" },
+    { text: "Hình ảnh", link: "/media", icon: "🖼️" },
+    { text: "Đơn hàng", link: "/order", icon: "📋" },
   ];
   const pathname = usePathname();
 
@@ -51,6 +56,11 @@ export default function RootLayout({
               },
             }}
           >
+            <div className="p-2">
+              <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
+                ☰
+              </IconButton>
+            </div>
             <List>
               {listAppBar.map((li) => (
                 <Link key={li.link} href={li.link} passHref>
@@ -69,7 +79,8 @@ export default function RootLayout({
                         },
                       }}
                     >
-                      <ListItemText primary={li.text} />
+                      <span className="mr-2">{li.icon}</span>
+                      {!isCollapsed && <ListItemText primary={li.text} />}
                     </ListItemButton>
                   </ListItem>
                 </Link>

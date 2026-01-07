@@ -14,23 +14,43 @@ interface Order {
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [tables, setTables] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadOrders = async () => {
+  const loadData = async () => {
     try {
-      const res = await fetch("/api/orders");
-      const data = await res.json();
-      setOrders(data);
+      const [ordersRes, productsRes, tablesRes] = await Promise.all([
+        fetch("/api/orders"),
+        fetch("/api/products"),
+        fetch("/api/tables"),
+      ]);
+      const ordersData = await ordersRes.json();
+      const productsData = await productsRes.json();
+      const tablesData = await tablesRes.json();
+      setOrders(ordersData);
+      setProducts(productsData);
+      setTables(tablesData);
     } catch (error) {
-      console.error("Error loading orders:", error);
+      console.error("Error loading data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadOrders();
+    loadData();
   }, []);
+
+  const getProductName = (productId: string) => {
+    const product = products.find((p) => p._id === productId);
+    return product ? product.name : productId;
+  };
+
+  const getTableName = (tableId: string) => {
+    const table = tables.find((t) => t._id === tableId);
+    return table ? table.name : tableId;
+  };
 
   if (loading) return <div className="p-4">Đang tải...</div>;
 
@@ -53,11 +73,13 @@ export default function OrdersPage() {
           <tbody>
             {orders.map((order) => (
               <tr key={order._id} className="hover:bg-gray-50">
-                <td className="py-2 px-4 border">{order.tableId}</td>
+                <td className="py-2 px-4 border">
+                  {getTableName(order.tableId)}
+                </td>
                 <td className="py-2 px-4 border">
                   {order.items.map((item, idx) => (
                     <div key={idx}>
-                      {item.productId} x {item.quantity}
+                      {getProductName(item.productId)} x {item.quantity}
                     </div>
                   ))}
                 </td>

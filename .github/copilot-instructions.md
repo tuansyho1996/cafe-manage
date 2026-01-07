@@ -40,7 +40,7 @@ This is a Next.js 16 cafe management system with MongoDB backend. Key components
 - **Table Display**: Grid layout in `components/order.tables.tsx` with conditional styling (`bg-blue-500` for occupied tables where total price > 0); display time and formatted total price calculated from selected products and quantities; separate modal components for editing, adding, and deleting tables; payment button in edit modal creates Order and resets table; includes DineInOrderList for listing dine-in orders
 - **Takeaway Orders**: `components/TakeawayOrder.tsx` for creating orders without tables; load products, select items with quantity via modal, calculate total, POST to `/api/orders` with type "takeaway", status "paid", and no tableId; reset after creation
 - **Image Management**: Upload to Cloudinary with preset "cafe_manager", store URL and public_id in form state and DB; delete image from Cloudinary in DELETE API route before DB removal using `cloudinary.uploader.destroy(public_id)`
-- **Navigation**: Sidebar in `layout.tsx` with Material-UI Drawer (permanent variant), Link navigation, selected state styling with custom colors; Vietnamese menu items ("Đơn hàng", "Sản phẩm", "Hình ảnh")
+- **Navigation**: Sidebar in `layout.tsx` with Material-UI Drawer (permanent variant), Link navigation, selected state styling with custom colors; Vietnamese menu items ("Quản lý", "Sản phẩm", "Hình ảnh", "Đơn hàng") with emoji icons; collapsible on mobile with toggle button
 - **Cloudinary Config**: Configure in API routes using `cloudinary.config()` with env vars; use `v2 as cloudinary` import
 
 ## Key Files to Reference
